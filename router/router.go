@@ -8,5 +8,8 @@ import (
 func InitRouter() {
 	router := gin.Default()
 	router.POST("/api/code", api.CodeHandle)
+	router.POST("/api/login", api.LoginHandle)
+
+
 	router.Run(":9090")
 }

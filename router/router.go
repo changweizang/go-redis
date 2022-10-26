@@ -5,7 +5,8 @@ import (
 	"go-redis/api"
 )
 
-func initRouter() {
+func InitRouter() {
 	router := gin.Default()
 	router.POST("/api/code", api.CodeHandle)
+	router.Run(":9090")
 }

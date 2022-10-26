@@ -1,12 +1,12 @@
 package utils
 
 import (
-	"fmt"
 	"math/rand"
+	"strconv"
 	"time"
 )
 
 // 生成验证码
 func GetRandomCode() string {
-	return fmt.Sprintf("%d", rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(1000000))
+	return strconv.Itoa(int(rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(1000000)))
 }

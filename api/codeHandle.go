@@ -18,7 +18,8 @@ func CodeHandle(ctx *gin.Context) {
 	if err != nil {
 		res.Code = http.StatusBadRequest
 		res.Message = "获取号码失败"
-		log.Fatalln(err)
+		log.Println(err)
+		ctx.JSON(http.StatusOK, res)
 	}
 	// 获取验证码
 	code := utils.GetRandomCode()
@@ -28,7 +29,8 @@ func CodeHandle(ctx *gin.Context) {
 	if err != nil {
 		res.Code = http.StatusBadRequest
 		res.Message = "redis错误"
-		log.Fatalln(err)
+		log.Println(err)
+		ctx.JSON(http.StatusOK, res)
 	}
 	res.Code = http.StatusOK
 	res.Message = "获取验证码成功"

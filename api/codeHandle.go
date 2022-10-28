@@ -22,6 +22,7 @@ func CodeHandle(ctx *gin.Context) {
 	}
 	// 获取验证码
 	code := utils.GetRandomCode()
+	log.Println("验证码：", code)
 	// 保存到redis
 	err = redis.SavePhoneCode(phoneBody.Phone, code)
 	if err != nil {

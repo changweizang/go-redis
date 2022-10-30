@@ -1,12 +1,13 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
 	"go-redis/models"
 	"go-redis/redis"
 	"go-redis/utils"
 	"log"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 // LoginHandle /*
@@ -17,7 +18,7 @@ input {phone code}
 判断用户是否存在
 不存在：创建新用户
 保存用户信息到redis
- */
+*/
 func LoginHandle(ctx *gin.Context) {
 	res := utils.ResBody{}
 	loginBody := utils.Login{}
@@ -52,7 +53,11 @@ func LoginHandle(ctx *gin.Context) {
 			ctx.JSON(http.StatusOK, res)
 		}
 	}
+	// 查询用户
+	user := models.SearchUserByPhone(loginBody.Phone)
 	// 随机生成token作为登录令牌
+	token := utils.GetUUid()
 	// 将user对象转化为hash存储并设置有效期
+	redis.SaveUser(token, user)
 	// 返回token
 }

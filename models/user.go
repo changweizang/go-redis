@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"log"
+	"time"
+)
 
 type User struct {
 	Id int
@@ -20,10 +23,17 @@ func (User) TableName() string {
 func IfUserExist(phone string) bool{
 	var count int64
 	db.Model(&User{}).Where("phone = ?", phone).Count(&count)
-	if count == 1 {
-		return true
+	return count == 1
+}
+
+// 根据phone查询用户
+func SearchUserByPhone(phone string) User {
+	user := User{}
+	err := db.Where("phone = ?", phone).First(&user).Error
+	if err != nil {
+		log.Println("select user failed err:", err)
 	}
-	return false
+	return user
 }
 
 // 添加用户

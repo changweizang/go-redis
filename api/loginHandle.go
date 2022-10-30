@@ -60,4 +60,8 @@ func LoginHandle(ctx *gin.Context) {
 	// 将user对象转化为hash存储并设置有效期
 	redis.SaveUser(token, user)
 	// 返回token
+	res.Code = http.StatusOK
+	res.Message = "登录成功"
+	res.Data = token
+	ctx.JSON(http.StatusOK, res)
 }

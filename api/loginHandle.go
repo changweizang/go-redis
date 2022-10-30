@@ -28,6 +28,7 @@ func LoginHandle(ctx *gin.Context) {
 		res.Message = "解析参数失败"
 		log.Println(err)
 		ctx.JSON(http.StatusOK, res)
+		return
 	}
 	// 校验验证码
 	ok, err := redis.CheckLoginCode(loginBody.Phone, loginBody.Code)
@@ -36,12 +37,14 @@ func LoginHandle(ctx *gin.Context) {
 		res.Message = err.Error()
 		log.Println(err)
 		ctx.JSON(http.StatusOK, res)
+		return
 	}
 	if !ok {
 		res.Code = http.StatusOK
 		res.Message = "验证码错误"
 		log.Println(err)
 		ctx.JSON(http.StatusOK, res)
+		return
 	}
 	// 用户状态
 	if exist := models.IfUserExist(loginBody.Phone); !exist {
@@ -51,6 +54,7 @@ func LoginHandle(ctx *gin.Context) {
 			res.Message = "添加用户失败"
 			log.Println(err)
 			ctx.JSON(http.StatusOK, res)
+			return
 		}
 	}
 	// 查询用户

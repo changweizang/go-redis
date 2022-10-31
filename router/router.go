@@ -9,7 +9,7 @@ func InitRouter() {
 	router := gin.Default()
 	router.POST("/api/code", api.CodeHandle)
 	router.POST("/api/login", api.LoginHandle)
-
+	router.GET("/shop/:id", api.QueryByIdHandle)
 
 	router.Run(":9090")
 }

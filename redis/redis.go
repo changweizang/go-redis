@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"encoding/json"
 	"go-redis/models"
 	"log"
 	"time"
@@ -47,4 +48,19 @@ func SaveUser(token string, user models.User) {
 	m := structs.Map(&user)
 	rdb.HMSet("login:" + token, m)
 	rdb.Expire("login:" + token, 60 * time.Hour)
+}
+
+// 查询商铺缓存
+func SearchShopById(id string) string {
+	result, err := rdb.Get("cache:shop:" + id).Result()
+	if err != nil {
+		log.Println("search shop failed err:", err)
+	}
+	return result
+}
+
+// 商铺信息写入redis
+func SaveShopCache(id string, shop models.Shop) {
+	marshal, _ := json.Marshal(shop)
+	rdb.Set("cashe:shop:" + id, string(marshal), 60 * time.Hour)
 }

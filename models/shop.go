@@ -35,3 +35,10 @@ func SearchShopById(id string) Shop {
 	}
 	return shop
 }
+
+func UpdateShop(shop Shop) {
+	err := db.Save(&shop).Error
+	if err != nil {
+		log.Println("update shop failed err:", err)
+	}
+}

@@ -1,14 +1,18 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
 	"go-redis/models"
 	"go-redis/redis"
 	"go-redis/utils"
+	"log"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
-func QueryByIdHandle(ctx *gin.Context) {
+// get
+// input id
+func QueryShopByIdHandle(ctx *gin.Context) {
 	res := utils.ResBody{}
 	id := ctx.Param("id")
 	// 从redis查询商铺缓存
@@ -29,5 +33,27 @@ func QueryByIdHandle(ctx *gin.Context) {
 	res.Code = http.StatusOK
 	res.Message = "success"
 	res.Data = shop
+	ctx.JSON(http.StatusOK, res)
+}
+
+// put
+// input shop
+func UpdateShopHandle(ctx *gin.Context) {
+	res := utils.ResBody{}
+	shop := models.Shop{}
+	err := ctx.ShouldBindJSON(&shop)
+	if err != nil {
+		res.Code = http.StatusBadRequest
+		res.Message = "解析参数失败"
+		log.Println(err)
+		ctx.JSON(http.StatusOK, res)
+		return
+	}
+	// 更新数据库中商铺信息
+	models.UpdateShop(shop)
+	// 删除该条缓存，下次查询时再添加缓存
+	redis.DeleteShop(string(shop.Id))
+	res.Code = http.StatusOK
+	res.Message = "删除缓存成功"
 	ctx.JSON(http.StatusOK, res)
 }

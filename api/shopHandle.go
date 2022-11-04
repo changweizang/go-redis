@@ -12,11 +12,12 @@ import (
 
 // get
 // input id
+// 缓存穿透处理
 func QueryShopByIdHandle(ctx *gin.Context) {
 	res := utils.ResBody{}
 	id := ctx.Param("id")
 	// 从redis查询商铺缓存
-	cacheShop := redis.SearchShopById(id)
+	cacheShop, err := redis.SearchShopById(id)
 	// 存在，直接返回
 	if cacheShop != "" {
 		res.Code = http.StatusOK
@@ -25,9 +26,24 @@ func QueryShopByIdHandle(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, res)
 		return
 	}
-	// 不存在，根据id查询数据库
-	shop := models.SearchShopById(id)
-	// 写入redis
+	// 查询到的缓存为空，直接返回空值，避免恶意访问
+	if err == nil && cacheShop == "" {
+		res.Code = http.StatusOK
+		res.Message = "店铺信息不存在"
+		ctx.JSON(http.StatusOK, res)
+		return
+	}
+	// 未查询到缓存，根据id查询数据库
+	shop, err := models.SearchShopById(id)
+	// 不存在，将空值写入redis，返回错误, 避免用户多次恶意访问
+	if err != nil {
+		redis.SaveNilCache(id)
+		res.Code = http.StatusOK
+		res.Message = "店铺不存在"
+		ctx.JSON(http.StatusOK, res)
+		return
+	}
+	// 存在写入redis
 	redis.SaveShopCache(id, shop)
 	// 返回结果
 	res.Code = http.StatusOK

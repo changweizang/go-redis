@@ -27,13 +27,13 @@ func (Shop) TableName() string {
 	return "tb_shop"
 }
 
-func SearchShopById(id string) Shop {
+func SearchShopById(id string) (Shop, error) {
 	shop := Shop{}
 	err := db.Where("id = ?", id).First(&shop).Error
 	if err != nil {
 		log.Println("select shop failed err:", err)
 	}
-	return shop
+	return shop, err
 }
 
 func UpdateShop(shop Shop) {

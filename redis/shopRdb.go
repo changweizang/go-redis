@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"go-redis/models"
 	"log"
+	"strconv"
 	"time"
 )
 
@@ -23,8 +24,9 @@ func SaveShopCache(id string, shop models.Shop) {
 }
 
 // 删除商铺缓存
-func DeleteShop(id string) {
-	err := rdb.Del("cache:shop:" + id).Err()
+func DeleteShop(id int) {
+	shopId := strconv.Itoa(id)
+	err := rdb.Del("cache:shop:" + shopId).Err()
 	if err != nil {
 		log.Println("delete cache failed err:", err)
 	}

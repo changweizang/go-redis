@@ -49,10 +49,16 @@ func UpdateShopHandle(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, res)
 		return
 	}
+	shopId := shop.Id
+	if shopId <= 0 {
+		res.Code = http.StatusBadRequest
+		res.Message = "店铺id错误"
+		ctx.JSON(http.StatusOK, res)
+	}
 	// 更新数据库中商铺信息
 	models.UpdateShop(shop)
 	// 删除该条缓存，下次查询时再添加缓存
-	redis.DeleteShop(string(shop.Id))
+	redis.DeleteShop(shop.Id)
 	res.Code = http.StatusOK
 	res.Message = "删除缓存成功"
 	ctx.JSON(http.StatusOK, res)

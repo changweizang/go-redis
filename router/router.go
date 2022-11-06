@@ -10,7 +10,7 @@ func InitRouter() {
 	router.POST("/api/code", api.CodeHandle)
 	router.POST("/api/login", api.LoginHandle)
 	router.GET("/shop/:id", api.QueryShopByIdHandle)
-	router.PUT("shop", api.UpdateShopHandle)
+	router.PUT("/shop", api.UpdateShopHandle)
 
 	router.Run(":9090")
 }

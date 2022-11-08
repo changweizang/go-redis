@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"go-redis/models"
 	"go-redis/redis"
 	"go-redis/utils"
@@ -14,15 +15,27 @@ import (
 // input id
 // 缓存穿透处理
 func QueryShopByIdHandle(ctx *gin.Context) {
+	// 缓存穿透
+	queryShopPassThrough(ctx)
+}
+
+
+
+func queryShopPassThrough(ctx *gin.Context) {
 	res := utils.ResBody{}
 	id := ctx.Param("id")
 	// 从redis查询商铺缓存
 	cacheShop, err := redis.SearchShopById(id)
+	shoper := models.Shop{}
+	if err2 := json.Unmarshal([]byte(cacheShop), &shoper); err2 != nil {
+		log.Println("unmarshal json failed err:", err2)
+		return
+	}
 	// 存在，直接返回
 	if cacheShop != "" {
 		res.Code = http.StatusOK
 		res.Message = "查询到信息"
-		res.Data = cacheShop
+		res.Data = shoper
 		ctx.JSON(http.StatusOK, res)
 		return
 	}

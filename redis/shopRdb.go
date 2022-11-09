@@ -53,3 +53,12 @@ func ReleaseLock(key string) {
 		log.Println("delete lock failed err:", err)
 	}
 }
+
+// 自增长
+func IncreId(keyPrefix, date string) int64 {
+	count, err := rdb.Incr("icr:" + keyPrefix + ":" + date).Result()
+	if err != nil {
+		log.Println("increment id failed err:", err)
+	}
+	return count
+}

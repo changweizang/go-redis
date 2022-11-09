@@ -4,6 +4,7 @@ import (
 	"time"
 )
 
+// 编辑此处时的时间戳
 var BEGIN_TIME_STAMP int64 = 1667978585
 
 // 生成全局唯一ID

@@ -37,3 +37,19 @@ func DeleteShop(id int) {
 	}
 }
 
+// 获取锁
+func TryLock(key string) bool {
+	flag, err := rdb.SetNX(key, "1", 10*time.Second).Result()
+	if err != nil {
+		log.Println("setnx failed err:", err)
+	}
+	return flag
+}
+
+// 释放锁
+func ReleaseLock(key string) {
+	err := rdb.Del(key).Err()
+	if err != nil {
+		log.Println("delete lock failed err:", err)
+	}
+}

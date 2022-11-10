@@ -7,10 +7,10 @@ import (
 
 func InitRouter() {
 	router := gin.Default()
-	router.POST("/api/code", api.CodeHandle)
-	router.POST("/api/login", api.LoginHandle)
+	router.POST("/user/code", api.CodeHandle)
+	router.POST("/user/login", api.LoginHandle)
 	router.GET("/shop/:id", api.QueryShopByIdHandle)
 	router.PUT("/shop", api.UpdateShopHandle)
 
-	router.Run(":9090")
+	router.Run(":8081")
 }

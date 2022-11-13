@@ -19,3 +19,11 @@ type Voucher struct {
 func (Voucher)TableName() string {
 	return "tb_voucher"
 }
+
+func AddVoucher(voucher Voucher) (error, int)  {
+	err := db.Create(&voucher).Error
+	db.First(&voucher)
+	return err, voucher.Id
+}
+
+

@@ -20,8 +20,9 @@ func QueryShopByIdHandle(ctx *gin.Context) {
 	id := ctx.Param("id")
 
 	// 缓存穿透
-	//queryShopPassThrough(ctx)
-
+	if 1 == 2 {
+		queryShopPassThrough(ctx)
+	}
 	// 缓存击穿
 	queryShopMutex(ctx, res, id)
 }

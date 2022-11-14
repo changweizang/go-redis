@@ -13,19 +13,17 @@ import (
 // 生成验证码并存入redis
 func CodeHandle(ctx *gin.Context) {
 	phone := ctx.Query("phone")
-	res := utils.ResBody{}
+	res := utils.InitResBody()
 	// 获取验证码
 	code := utils.GetRandomCode()
 	log.Println("验证码：", code)
 	// 保存到redis
 	err := redis.SavePhoneCode(phone, code)
 	if err != nil {
-		res.Code = http.StatusBadRequest
 		res.Message = "redis错误"
 		log.Println(err)
 		ctx.JSON(http.StatusOK, res)
 	}
-	res.Code = http.StatusOK
 	res.Message = "获取验证码成功"
 	res.Data = code
 	ctx.JSON(http.StatusOK, res)

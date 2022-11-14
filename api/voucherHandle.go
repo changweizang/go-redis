@@ -14,13 +14,13 @@ import (
 // input voucher
 // 添加秒杀优惠券
 func AddSkillVoucher(ctx *gin.Context) {
-	res := utils.ResBody{}
+	res := utils.InitResBody()
 	req := utils.ReqSkillVoucher{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		res.Code = http.StatusBadRequest
 		res.Message = "解析参数失败"
 		log.Println(err)
-		ctx.JSON(http.StatusOK, res)
+		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 	// 添加到秒杀券和优惠券两张表中
@@ -38,7 +38,7 @@ func AddSkillVoucher(ctx *gin.Context) {
 	if err != nil {
 		log.Println("save voucher failed err:", err)
 		res.Code = http.StatusBadRequest
-		ctx.JSON(http.StatusOK, res)
+		ctx.JSON(http.StatusBadRequest, res)
 		return	
 	}
 	skillVoucher := models.SeckillVoucher{}
@@ -51,10 +51,9 @@ func AddSkillVoucher(ctx *gin.Context) {
 	if err := models.AddSkillVoucher(skillVoucher); err != nil {
 		log.Println("save voucher failed err:", err)
 		res.Code = http.StatusBadRequest
-		ctx.JSON(http.StatusOK, res)
+		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
-	res.Code = http.StatusOK
 	res.Message = "添加秒杀优惠券成功"
 	ctx.JSON(http.StatusOK, res)
 }

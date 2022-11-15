@@ -26,4 +26,10 @@ func AddVoucher(voucher Voucher) (error, int)  {
 	return err, voucher.Id
 }
 
+func QueryVoucherById(id string) (Voucher, error) {
+	voucher := Voucher{}
+	err := db.Where("id = ?", id).First(&voucher).Error
+	return voucher, err
+}
+
 

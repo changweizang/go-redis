@@ -2,6 +2,7 @@ package models
 
 import (
 	"go-redis/utils"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -20,4 +21,14 @@ func (SeckillVoucher) TableName() string {
 
 func AddSkillVoucher(skillVoucher SeckillVoucher) error {
 	return db.Create(&skillVoucher).Error
+}
+
+func QuerySeckillVoucherById(id string) (SeckillVoucher, error) {
+	seckillVoucher := SeckillVoucher{}
+	err := db.Where("voucher_id = ?", id).First(&seckillVoucher).Error
+	return seckillVoucher, err
+}
+
+func DecVoucherSock(seckillVoucher SeckillVoucher) error {
+	return db.Model(&seckillVoucher).Where("voucher_id = ?", seckillVoucher.VoucherId).UpdateColumn("stock", gorm.Expr("stock - ?", 1)).Error
 }

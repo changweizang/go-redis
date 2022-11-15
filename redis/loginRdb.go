@@ -30,3 +30,9 @@ func SaveUser(token string, user models.User) {
 	rdb.HMSet("login:"+token, m)
 	rdb.Expire("login:"+token, 60*time.Hour)
 }
+
+// 根据token取出user信息
+func GetUser(token string) string {
+	result, _ := rdb.HGetAll("login:"+token).Result()
+	return result["Id"]
+}

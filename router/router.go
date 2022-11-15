@@ -1,9 +1,8 @@
 package router
 
 import (
-	"go-redis/api"
-
 	"github.com/gin-gonic/gin"
+	"go-redis/api"
 )
 
 func InitRouter() {
@@ -14,6 +13,7 @@ func InitRouter() {
 	router.GET("/shop/:id", api.QueryShopByIdHandle)
 	router.PUT("/shop", api.UpdateShopHandle)
 	router.POST("/voucher/seckill", api.AddSkillVoucher)
+	router.POST("/voucher-order/seckill/:id", api.SeckillVoucher)
 
 	router.Run(":9090")
 }

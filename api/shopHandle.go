@@ -142,6 +142,7 @@ func UpdateShopHandle(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, res)
 	}
 	// 更新数据库中商铺信息
+	shop.UpdateTime = time.Now()
 	models.UpdateShop(shop)
 	// 删除该条缓存，下次查询时再添加缓存
 	redis.DeleteShop(shop.Id)

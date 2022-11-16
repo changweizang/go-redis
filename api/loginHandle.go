@@ -1,6 +1,7 @@
 package api
 
 import (
+	"go-redis/middleware"
 	"go-redis/models"
 	"go-redis/redis"
 	"go-redis/utils"
@@ -57,8 +58,8 @@ func LoginHandle(ctx *gin.Context) {
 	// 查询用户
 	user := models.SearchUserByPhone(loginBody.Phone)
 	// 随机生成token作为登录令牌
-	token := utils.GetUUid()
-	// 将user对象转化为hash存储并设置有效期
+	token, _ := middleware.SetToken(loginBody.Phone)
+	// TODO 将user对象转化为hash存储并设置有效期
 	redis.SaveUser(token, user)
 	// 返回token
 	res.Message = "登录成功"

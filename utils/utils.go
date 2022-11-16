@@ -19,3 +19,4 @@ func GetUUid() string {
 	u := uuid.New()
 	return strings.ReplaceAll(u.String(), "-", "")
 }
+

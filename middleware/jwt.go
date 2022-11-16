@@ -4,8 +4,10 @@ import (
 	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"go-redis/utils"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type JWT struct {
@@ -19,7 +21,7 @@ func NewJWT() *JWT {
 }
 
 type MyClaims struct {
-	Username string `json:"username"`
+	Phone string `json:"phone"`
 	jwt.StandardClaims
 }
 
@@ -70,30 +72,26 @@ func (j *JWT) ParserToken(tokenString string) (*MyClaims, error) {
 // JwtToken jwt中间件
 func JwtToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var code int
+		res := utils.InitResBody()
 		tokenHeader := c.Request.Header.Get("Authorization")
 		if tokenHeader == "" {
-			code = http.StatusBadRequest
-			c.JSON(http.StatusOK, gin.H{
-				"status":  code,
-			})
+			res.Message = "未获取到token"
+			c.JSON(http.StatusOK, res)
 			c.Abort()
 			return
 		}
 
 		checkToken := strings.Split(tokenHeader, " ")
 		if len(checkToken) == 0 {
-			c.JSON(http.StatusOK, gin.H{
-				"status":  code,
-			})
+			res.Message = "token格式不正确"
+			c.JSON(http.StatusOK, res)
 			c.Abort()
 			return
 		}
 
 		if len(checkToken) != 2 || checkToken[0] != "Bearer" {
-			c.JSON(http.StatusOK, gin.H{
-				"status":  code,
-			})
+			res.Message = "token错误"
+			c.JSON(http.StatusOK, res)
 			c.Abort()
 			return
 		}
@@ -103,26 +101,35 @@ func JwtToken() gin.HandlerFunc {
 		claims, err := j.ParserToken(checkToken[1])
 		if err != nil {
 			if err == TokenExpired {
-				c.JSON(http.StatusOK, gin.H{
-					"status":  http.StatusInternalServerError,
-					"message": "token授权已过期,请重新登录",
-					"data":    nil,
-				})
+				res.Code = http.StatusInternalServerError
+				res.Message = "token授权已过期,请重新登录"
+				c.JSON(http.StatusOK, res)
 				c.Abort()
 				return
 			}
 			// 其他错误
-			c.JSON(http.StatusOK, gin.H{
-				"status":  http.StatusInternalServerError,
-				"message": err.Error(),
-				"data":    nil,
-			})
+			res.Code = http.StatusInternalServerError
+			res.Message = err.Error()
+			c.JSON(http.StatusOK, res)
 			c.Abort()
 			return
 		}
-
-		c.Set("username", claims)
+		c.Set("claims", claims)
 		c.Next()
 	}
+}
+
+// 生成token
+func SetToken(phone string) (string,error) {
+	j := NewJWT()
+	token, err := j.CreateToken(MyClaims{
+		phone,
+		jwt.StandardClaims{
+			NotBefore: time.Now().Unix() - 100,
+			ExpiresAt: time.Now().Unix() + 604800,
+			Issuer:    "go-redis",
+		},
+	})
+	return token, err
 }
 

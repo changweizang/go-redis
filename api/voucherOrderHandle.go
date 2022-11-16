@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-redis/models"
 	"go-redis/redis"
@@ -62,10 +63,15 @@ func SeckillVoucher(ctx *gin.Context) {
 	orderId := redis.NextId("voucherOrder")
 	voucherOrder.Id = int(orderId)
 	// 6.2.用户id
-	token := ctx.Request.Header.Get("Authorization")
-	userId := redis.GetUser(token)
-	atoiUserId, _ := strconv.Atoi(userId)
-	voucherOrder.UserId = atoiUserId
+	phoneValue, ok := ctx.Get("phone")
+	if !ok {
+		res.Message = "未获取到用户信息"
+		ctx.JSON(http.StatusOK, res)
+		return
+	}
+	phone := fmt.Sprintf("%v", phoneValue)
+	user := models.SearchUserByPhone(phone)
+	voucherOrder.UserId = user.Id
 	// 6.3.代金券id
 	atoiVoucherId, _ := strconv.Atoi(voucherId)
 	voucherOrder.VoucherId = atoiVoucherId

@@ -29,6 +29,6 @@ func QuerySeckillVoucherById(id string) (SeckillVoucher, error) {
 	return seckillVoucher, err
 }
 
-func DecVoucherSock(seckillVoucher SeckillVoucher) error {
-	return db.Model(&seckillVoucher).Where("voucher_id = ?", seckillVoucher.VoucherId).UpdateColumn("stock", gorm.Expr("stock - ?", 1)).Error
+func DecVoucherSock(seckillVoucher SeckillVoucher, tx *gorm.DB) error {
+	return tx.Model(&seckillVoucher).Where("voucher_id = ?", seckillVoucher.VoucherId).UpdateColumn("stock", gorm.Expr("stock - ?", 1)).Error
 }

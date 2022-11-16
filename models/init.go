@@ -22,4 +22,8 @@ func InitMysql() {
 	db = db.Debug()
 }
 
+func GetDb() *gorm.DB {
+	return db
+}
+
 

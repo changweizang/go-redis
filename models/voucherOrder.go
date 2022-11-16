@@ -2,6 +2,7 @@ package models
 
 import (
 	"go-redis/utils"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -22,7 +23,7 @@ func (VoucherOrder) TableName() string {
 	return "tb_voucher_order"
 }
 
-func SaveVoucherOrder(voucherOrder VoucherOrder) error {
-	return db.Create(&voucherOrder).Error
+func SaveVoucherOrder(voucherOrder VoucherOrder, tx *gorm.DB) error {
+	return tx.Create(&voucherOrder).Error
 
 }

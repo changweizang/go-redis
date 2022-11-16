@@ -49,9 +49,16 @@ func SeckillVoucher(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, res)
 		return
 	}
-	// 5.扣减库存
-	err = models.DecVoucherSock(seckillVoucher)
+	// 5.扣减库存, 并开启事务
+	tx := models.GetDb().Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+	err = models.DecVoucherSock(seckillVoucher, tx)
 	if err != nil {
+		tx.Rollback()
 		log.Println("update count failed")
 		res.Message = "扣减库存失败"
 		ctx.JSON(http.StatusOK, res)
@@ -78,13 +85,16 @@ func SeckillVoucher(ctx *gin.Context) {
 	// 6.4.保存订单信息
 	voucherOrder.CreateTime = time.Now()
 	voucherOrder.UpdateTime = time.Now()
-	err = models.SaveVoucherOrder(voucherOrder)
+	err = models.SaveVoucherOrder(voucherOrder, tx)
 	if err != nil {
+		tx.Rollback()
 		log.Println("save voucher order failed err:", err)
 		res.Message = "保存订单失败"
 		ctx.JSON(http.StatusOK, res)
 		return
 	}
+	// 结束事务
+	tx.Commit()
 	// 7.返回订单id
 	res.Data = orderId
 	ctx.JSON(http.StatusOK, res)

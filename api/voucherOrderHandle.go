@@ -72,7 +72,9 @@ func SeckillVoucher(ctx *gin.Context) {
 	// 6.2.用户id
 	phoneValue, ok := ctx.Get("phone")
 	if !ok {
+		tx.Rollback()
 		res.Message = "未获取到用户信息"
+		log.Println("未获取到用户信息")
 		ctx.JSON(http.StatusOK, res)
 		return
 	}

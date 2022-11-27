@@ -25,5 +25,10 @@ func (VoucherOrder) TableName() string {
 
 func SaveVoucherOrder(voucherOrder VoucherOrder, tx *gorm.DB) error {
 	return tx.Create(&voucherOrder).Error
+}
 
+func QueryCountByUserId(userId int) (int64, error) {
+	var count int64
+	err := db.Model(&VoucherOrder{}).Where("user_id = ?", userId).Count(&count).Error
+	return count, err
 }

@@ -2,15 +2,19 @@ package api
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"go-redis/models"
 	"go-redis/redis"
 	"go-redis/utils"
 	"log"
 	"net/http"
 	"strconv"
+	"sync"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
+
+var mutex sync.Mutex
 
 // post
 // input voucherId
@@ -50,6 +54,32 @@ func SeckillVoucher(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, res)
 		return
 	}
+	// 一人一单
+	mutex.Lock()
+	defer mutex.Unlock()
+	phoneValue, ok := ctx.Get("phone")
+	if !ok {
+		res.Message = "未获取到用户信息"
+		log.Println("未获取到用户信息")
+		ctx.JSON(http.StatusOK, res)
+		return
+	}
+	phone := fmt.Sprintf("%v", phoneValue)
+	user := models.SearchUserByPhone(phone)
+	userId := user.Id
+	count, err := models.QueryCountByUserId(userId)
+	if err != nil {
+		res.Message = "查询订单错误"
+		log.Println("查询订单错误")
+		ctx.JSON(http.StatusOK, res)
+		return
+	}
+	if count > 0 {
+		res.Message = "用户已经购买过一次了"
+		log.Println("用户已经购买过一次了")
+		ctx.JSON(http.StatusOK, res)
+		return
+	}
 	// 5.开启事务，扣减库存
 	tx := models.GetDb().Begin()
 	defer func() {
@@ -72,17 +102,7 @@ func SeckillVoucher(ctx *gin.Context) {
 	orderId := redis.NextId("voucherOrder")
 	voucherOrder.Id = int(orderId)
 	// 6.2.用户id
-	phoneValue, ok := ctx.Get("phone")
-	if !ok {
-		tx.Rollback()
-		res.Message = "未获取到用户信息"
-		log.Println("未获取到用户信息")
-		ctx.JSON(http.StatusOK, res)
-		return
-	}
-	phone := fmt.Sprintf("%v", phoneValue)
-	user := models.SearchUserByPhone(phone)
-	voucherOrder.UserId = user.Id
+	voucherOrder.UserId = userId
 	// 6.3.代金券id
 	atoiVoucherId, _ := strconv.Atoi(voucherId)
 	voucherOrder.VoucherId = atoiVoucherId

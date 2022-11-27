@@ -2,8 +2,9 @@ package models
 
 import (
 	"go-redis/utils"
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type SeckillVoucher struct {
@@ -29,6 +30,9 @@ func QuerySeckillVoucherById(id string) (SeckillVoucher, error) {
 	return seckillVoucher, err
 }
 
-func DecVoucherSock(seckillVoucher SeckillVoucher, tx *gorm.DB) error {
-	return tx.Model(&seckillVoucher).Where("voucher_id = ? and stock > ?", seckillVoucher.VoucherId, 0).UpdateColumn("stock", gorm.Expr("stock - ?", 1)).Error
+func DecVoucherSock(seckillVoucher SeckillVoucher, tx *gorm.DB) (int64, error) {
+	result := tx.Model(&seckillVoucher).
+		Where("voucher_id = ? and stock > ?", seckillVoucher.VoucherId, 0).
+		UpdateColumn("stock", gorm.Expr("stock - ?", 1))
+	return result.RowsAffected, result.Error
 }

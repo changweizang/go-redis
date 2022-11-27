@@ -88,8 +88,8 @@ func SeckillVoucher(ctx *gin.Context) {
 		}
 	}()
 	// 乐观锁处理，扣减库存时判断库存是否大于0
-	err = models.DecVoucherSock(seckillVoucher, tx)
-	if err != nil {
+	countStock, err := models.DecVoucherSock(seckillVoucher, tx)
+	if err != nil || countStock == 0 {
 		tx.Rollback()
 		log.Println("update count failed")
 		res.Message = "扣减库存失败"

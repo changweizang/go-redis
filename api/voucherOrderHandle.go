@@ -15,6 +15,7 @@ import (
 // post
 // input voucherId
 // 秒杀优惠券
+// 乐观锁解决库存超卖问题
 func SeckillVoucher(ctx *gin.Context) {
 	res := utils.InitResBody()
 	voucherId := ctx.Param("id")
@@ -49,13 +50,14 @@ func SeckillVoucher(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, res)
 		return
 	}
-	// 5.扣减库存, 并开启事务
+	// 5.开启事务，扣减库存
 	tx := models.GetDb().Begin()
 	defer func() {
 		if r := recover(); r != nil {
 			tx.Rollback()
 		}
 	}()
+	// 乐观锁处理，扣减库存时判断库存是否大于0
 	err = models.DecVoucherSock(seckillVoucher, tx)
 	if err != nil {
 		tx.Rollback()

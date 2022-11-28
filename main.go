@@ -9,6 +9,6 @@ import (
 func main() {
 	models.InitMysql()
 	redis.InitRedis()
-	router.InitRouter()
+	router.InitRouter(router.ListenPort())
 
 }

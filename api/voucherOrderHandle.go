@@ -20,6 +20,7 @@ var mutex sync.Mutex
 // input voucherId
 // 秒杀优惠券
 // 乐观锁解决库存超卖问题
+// 分布式锁
 func SeckillVoucher(ctx *gin.Context) {
 	res := utils.InitResBody()
 	voucherId := ctx.Param("id")
@@ -55,8 +56,8 @@ func SeckillVoucher(ctx *gin.Context) {
 		return
 	}
 	// 一人一单
-	mutex.Lock()
-	defer mutex.Unlock()
+	//mutex.Lock()
+	//defer mutex.Unlock()
 	phoneValue, ok := ctx.Get("phone")
 	if !ok {
 		res.Message = "未获取到用户信息"
@@ -67,6 +68,15 @@ func SeckillVoucher(ctx *gin.Context) {
 	phone := fmt.Sprintf("%v", phoneValue)
 	user := models.SearchUserByPhone(phone)
 	userId := user.Id
+	// 分布式锁
+	flag := redis.TryLockOfOrder(fmt.Sprintf("%v", userId))
+	defer redis.DeleteLockOfOrder(fmt.Sprintf("%v", userId))
+	if !flag {
+		res.Message = "不允许重复下单"
+		log.Println("不允许重复下单")
+		ctx.JSON(http.StatusOK, res)
+		return
+	}
 	count, err := models.QueryCountByUserId(userId)
 	if err != nil {
 		res.Message = "查询订单错误"

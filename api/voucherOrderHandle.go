@@ -69,8 +69,9 @@ func SeckillVoucher(ctx *gin.Context) {
 	user := models.SearchUserByPhone(phone)
 	userId := user.Id
 	// 分布式锁
-	flag := redis.TryLockOfOrder(fmt.Sprintf("%v", userId))
-	defer redis.DeleteLockOfOrder(fmt.Sprintf("%v", userId))
+	uuid := utils.GetUUid()
+	flag := redis.TryLockOfOrder(fmt.Sprintf("%v", userId), uuid)
+	defer redis.DeleteLockOfOrder(fmt.Sprintf("%v", userId), uuid)
 	if !flag {
 		res.Message = "不允许重复下单"
 		log.Println("不允许重复下单")

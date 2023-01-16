@@ -9,6 +9,7 @@ require (
 	github.com/changweizang/go-redisson v0.0.0-20221228102205-669a134ca993 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/fatih/structs v1.1.0 // indirect
+	github.com/gin-contrib/cors v1.4.0 // indirect
 	github.com/go-basic/uuid v1.0.0 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
